@@ -18,12 +18,15 @@ public class TmsCheckerMojo extends AbstractMojo {
     @Parameter(property = "testsFolder", required = true)
     private String testsFolder;
 
+    /**
+     * при обнаружении ошибки блокируем дальнейшее выполнение, падаем с ошибкой
+     */
     @Parameter(property = "isFailFast", defaultValue = "true")
     private Boolean isFailFast;
 
     @Override
     public void execute() throws MojoExecutionException {
-
+        
     }
 
 }

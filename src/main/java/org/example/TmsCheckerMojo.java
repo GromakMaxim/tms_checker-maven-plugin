@@ -24,9 +24,13 @@ public class TmsCheckerMojo extends AbstractMojo {
     @Parameter(property = "isFailFast", defaultValue = "true")
     private Boolean isFailFast;
 
+    @Parameter(property = "ignoreDisabledTests", defaultValue = "false")
+    private Boolean ignoreDisabledTests;
+
     @Override
     public void execute() throws MojoExecutionException {
-        
+        FolderScanner fs = new FolderScanner(testsFolder, isFailFast, ignoreDisabledTests);
+        fs.findAllTestMethods(fs.findAllClassesUsingClassLoader());
     }
 
 }

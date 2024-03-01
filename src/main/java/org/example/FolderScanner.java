@@ -7,29 +7,38 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toSet;
 
 
 public class FolderScanner {
-    private final String PACKAGE_NAME;
-    private boolean isFailFast;
+    private final String packageName;
+    private final boolean isFailFast;
+    private final boolean ignoreDisabledTests;
 
-    public FolderScanner(String PACKAGE_NAME, boolean isFailFast) {
-        this.PACKAGE_NAME = PACKAGE_NAME;
+    public FolderScanner(String packageName, boolean isFailFast) {
+        this.packageName = packageName;
         this.isFailFast = isFailFast;
+        this.ignoreDisabledTests = false;
+    }
+
+    public FolderScanner(String packageName, boolean isFailFast, boolean ignoreDisabledTests) {
+        this.packageName = packageName;
+        this.isFailFast = isFailFast;
+        this.ignoreDisabledTests = ignoreDisabledTests;
     }
 
     public Set<Class> findAllClassesUsingClassLoader() {
         InputStream stream = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream(PACKAGE_NAME.replaceAll("[.]", "/"));
+                .getResourceAsStream(packageName.replaceAll("[.]", "/"));
 
-        if (stream == null) throw new RuntimeException("Cant find folder: " + PACKAGE_NAME);
+        if (stream == null) throw new RuntimeException("Cant find folder: " + packageName);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         return reader.lines()
                 .filter(line -> line.endsWith(".class"))
-                .map(line -> getClass(line, PACKAGE_NAME))
+                .map(line -> getClass(line, packageName))
                 .collect(toSet());
     }
 
@@ -53,7 +62,9 @@ public class FolderScanner {
             var methods = clazz.getDeclaredMethods();
 
             Arrays.stream(methods)
-                    .filter(method -> method.isAnnotationPresent(TmsLink.class))
+                    //.peek(m-> System.out.println(Arrays.toString(m.getDeclaredAnnotations())))
+                    .filter(filterByTmsLinks)
+                    .filter(method -> !ignoreDisabledTests || !filterByDisabled.test(method))
                     .map(method -> method.getAnnotation(TmsLink.class).value())
                     .forEach(tms -> {
                         if (!tmsLinks.contains(tms)) {
@@ -70,4 +81,7 @@ public class FolderScanner {
         if (!duplicatedTmsLinks.isEmpty() || !sb.isEmpty()) throw new RuntimeException(sb.toString().substring(0, sb.toString().length()-1));
 
     }
+
+    private final Predicate<Method> filterByTmsLinks = method -> method.isAnnotationPresent(TmsLink.class);
+    private final Predicate<Method> filterByDisabled = method -> Arrays.stream(method.getDeclaredAnnotations()).filter(a->a.toString().contains("Disabled(")).toList().size() != 0;
 }

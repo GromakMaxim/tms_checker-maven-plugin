@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TmsCheckerTest {
     @Test
-    @DisplayName("смоке, нет дубляжей")
+    @DisplayName("нет дубляжей")
     public void testValidTestsExpectSuccess() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test2", true);
 
@@ -18,7 +18,7 @@ public class TmsCheckerTest {
     }
 
     @Test
-    @DisplayName("смоке, дубляжи")
+    @DisplayName("дубляжи")
     public void testDuplicateTmsLinksExpectExceptionWithMessage() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test1", true);
         assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
@@ -51,6 +51,22 @@ public class TmsCheckerTest {
         assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Found duplicate TmsLink! -> 111\nFound duplicate TmsLink! -> 222");
+    }
+
+    @Test
+    @DisplayName("в классе дубляжи и они disabled - должны проверяться")
+    public void testWithDisabledDuplicates_shouldBeChecked() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test5", false, false);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Found duplicate TmsLink! -> 1");
+    }
+
+    @Test
+    @DisplayName("в классе дубляжи и они disabled - должны игнорироваться")
+    public void testWithDisabledDuplicates_shouldBeIgnored() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test5", false, true);
+        assertDoesNotThrow(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()));
     }
 
 }

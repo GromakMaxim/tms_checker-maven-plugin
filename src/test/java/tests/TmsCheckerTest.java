@@ -113,4 +113,36 @@ public class TmsCheckerTest {
                 .hasMessageMatching("^Found duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}$");
     }
 
+    @Test
+    @DisplayName("передаётся несколько классов(только дубляжи, только disabled) - вкл disabled, ищем все дубляжи")
+    public void testComplex5() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test7", false, false);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageMatching("^Found duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}$");
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(только дубляжи, только disabled) - вкл disabled, ищем первый дубляж")
+    public void testComplex6() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test7", true, false);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageMatching("^Found duplicate TmsLink! -> \\d{1,10}$");
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(только дубляжи, только disabled) - игнорируем disabled, не должен падать")
+    public void testComplex7() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test7", false, true);
+        assertDoesNotThrow(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()));
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(только дубляжи, только disabled) - игнорируем disabled, failFast=true, не должен падать")
+    public void testComplex8() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test7", true, true);
+        assertDoesNotThrow(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()));
+    }
+
 }

@@ -1,9 +1,9 @@
-package tests.test_templates.test1;
+package tests.test_data.test1;
 
 import io.qameta.allure.TmsLink;
 import org.junit.jupiter.api.Test;
 
-public class TestClassWithDuplicateTms {
+public class TestClassWithDuplicateTmsTest {
     @Test
     @TmsLink("1")
     void t1() {

@@ -1,4 +1,4 @@
-package tests.test_templates.test6;
+package tests.test_data.test3;
 
 public class TestClassWithoutAnyMethodTest {
 }

@@ -1,4 +1,4 @@
-package tests.test_templates.test6;
+package tests.test_data.test4;
 
 import io.qameta.allure.TmsLink;
 import org.junit.jupiter.api.Test;

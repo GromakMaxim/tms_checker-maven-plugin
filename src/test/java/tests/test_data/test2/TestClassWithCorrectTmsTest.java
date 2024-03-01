@@ -1,10 +1,10 @@
-package tests.test_templates.test2;
+package tests.test_data.test2;
 
 import io.qameta.allure.TmsLink;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class TestClassWithCorrectTms {
+public class TestClassWithCorrectTmsTest {
     @Test
     @TmsLink("1")
     void t1() {

@@ -1,21 +1,22 @@
-package tests.test_templates.test5;
+package tests.test_data.test7;
 
 import io.qameta.allure.TmsLink;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class TestClassWithDisabledDuplicatesTest {
+public class TestClassWithDisabledDuplicates2Test {
     @Test
-    @TmsLink("1")
+    @TmsLink("2")
     @Disabled
     void t1() {
-        System.out.println(1);
+        System.out.println(2);
     }
 
     @Test
-    @TmsLink("1")
+    @TmsLink("2")
     @Disabled
     void t2() {
         System.out.println(2);
     }
 }
+

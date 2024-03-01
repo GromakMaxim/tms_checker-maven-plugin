@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TmsCheckerTest {
     @Test
-    @DisplayName("нет дубляжей")
+    @DisplayName("нет дубляжей - позитивный")
     public void testValidTestsExpectSuccess() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test2", true);
 
@@ -18,7 +18,7 @@ public class TmsCheckerTest {
     }
 
     @Test
-    @DisplayName("дубляжи")
+    @DisplayName("есть дубляжи - должны упасть с сообщением")
     public void testDuplicateTmsLinksExpectExceptionWithMessage() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test1", true);
         assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
@@ -27,7 +27,7 @@ public class TmsCheckerTest {
     }
 
     @Test
-    @DisplayName("передаётся несуществующая директория")
+    @DisplayName("передаётся несуществующая директория - должны упасть с сообщением")
     public void testWithWrongFolder() {
         FolderScanner folderScanner = new FolderScanner("tests.blablabla.andblaagain", true);
 
@@ -37,7 +37,7 @@ public class TmsCheckerTest {
     }
 
     @Test
-    @DisplayName("передаётся пустой класс")
+    @DisplayName("передаётся пустой класс - не должно быть падений")
     public void testWithEmptyClass() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test3", true);
 
@@ -45,12 +45,21 @@ public class TmsCheckerTest {
     }
 
     @Test
-    @DisplayName("в классе несколько дубляжей")
+    @DisplayName("в классе несколько дубляжей - должны найти все и потом упасть")
     public void testWithFewDuplicates() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test4", false);
         assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Found duplicate TmsLink! -> 111\nFound duplicate TmsLink! -> 222");
+    }
+
+    @Test
+    @DisplayName("в классе несколько дубляжей - должны быстро падать при нахождении первого")
+    public void testWithFewDuplicatesFailFast() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test4", true);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Found duplicate TmsLink! -> 111");
     }
 
     @Test

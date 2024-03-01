@@ -1,7 +1,6 @@
 package tests;
 
 import org.example.FolderScanner;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -76,6 +75,42 @@ public class TmsCheckerTest {
     public void testWithDisabledDuplicates_shouldBeIgnored() {
         FolderScanner folderScanner = new FolderScanner("tests.test_templates.test5", false, true);
         assertDoesNotThrow(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()));
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(есть дубляжи, есть disabled, есть пустой) - игнорируем disabled, падаем при первом дубляже")
+    public void testComplex1() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test6", true, true);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Found duplicate TmsLink! -> 111");
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(есть дубляжи, есть disabled, есть пустой) - игнорируем disabled, ищем все дубляжи")
+    public void testComplex2() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test6", false, true);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Found duplicate TmsLink! -> 111\nFound duplicate TmsLink! -> 222");
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(есть дубляжи, есть disabled, есть пустой) - вкл disabled, падаем при первом дубляже")
+    public void testComplex3() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test6", true, false);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageMatching("^Found duplicate TmsLink! -> \\d{1,10}$");
+    }
+
+    @Test
+    @DisplayName("передаётся несколько классов(есть дубляжи, есть disabled, есть пустой) - вкл disabled, ищем все дубляжи")
+    public void testComplex4() {
+        FolderScanner folderScanner = new FolderScanner("tests.test_templates.test6", false, false);
+        assertThatThrownBy(() -> folderScanner.findAllTestMethods(folderScanner.findAllClassesUsingClassLoader()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageMatching("^Found duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}\\nFound duplicate TmsLink! -> \\d{1,10}$");
     }
 
 }
